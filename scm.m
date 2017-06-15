@@ -20,26 +20,21 @@ function chi = scm(t,p,w,tau_min,tau_max)
 %
 %   For column-oriented data analysis, use SCM(T',P',W,TAU_MIN,TAU_MAX).
 
-%   Version 2017.03.14
+%   Version 2017.06.15
 %   Copyright 2017 Ryan McGowan
 
 [n_theta,n_t] = size(p);
+pNeighbor = [p(2:end,:);p(1,:)];
 chi = zeros(n_theta,n_t);
-h = waitbar(0,'Please wait...');
-for i = 1:n_theta
+parfor i = 1:n_theta
     for j = 1:n_t
         % Window home trace around t_0
-        t_0 = t(j);
-        W = heaviside(t-(t_0-w/2))-heaviside(t-(t_0+w/2));
+        W = heaviside(t-(t(j)-w/2))-heaviside(t-(t(j)+w/2));
         pHat = p(i,:).*W;
         
         % Compute cross-correlation between windowed signal and neighbor
         % time trace
-        if i == n_theta
-            [R,lags] = xcorr(pHat,p(1,:));
-        else
-            [R,lags] = xcorr(pHat,p(i+1,:));
-        end
+        [R,lags] = xcorr(pHat,pNeighbor(i,:));
         
         % Compute SCM
         tau = lags*mean(diff(t));
@@ -47,11 +42,7 @@ for i = 1:n_theta
         [~,i_tau_max] = min(abs(tau-tau_max));
         i_tau = i_tau_min:i_tau_max;
         chi(i,j) = trapz(tau(i_tau),R(i_tau));
-        
-        waitbar(((i-1)*n_t+j)/(n_theta*n_t),h)
     end
 end
-close(h)
-
 end
 
