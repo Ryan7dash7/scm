@@ -6,5 +6,5 @@ W, the cross-correlation window length, specifies the time scale (length scale f
 
 For column-oriented data analysis, use SCM(T',P',W,TAU_MIN,TAU_MAX).
 
-Version 2017.03.14  
+Version 2017.06.15  
 Copyright 2017 Ryan McGowan
